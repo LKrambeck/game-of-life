@@ -26,7 +26,7 @@ int  testSize             (game_t *game, int x, int y);
 void playGame             (game_t *game);
 void printGeneration      (game_t *game);
 void nextCellStatus       (game_t *game, int x, int y);
-int checkNeighbors        (game_t *game, int x, int y);
+int  checkNeighbors       (game_t *game, int x, int y);
 void createLife           (game_t *game, int x, int y);
 void keepStatus           (game_t *game, int x, int y);
 void killCell             (game_t *game, int x, int y);
@@ -186,12 +186,12 @@ int checkNeighbors (game_t *game, int x, int y)
 {
 	int i, j, aliveCellCount = 0;
 
-	printf ("bruh\n");
-
 	for ( i=-1; i <= 1; i++ )
 		for ( j=-1; j <= 1; j++ )
-			if ( !( (x+i < 0) || (y+j < 0) || (x+i > game->this.rows) || (y+j > game->this.cols) ) )
-				if ( (x!=0) || (y!=0) )
+			/* Checks if the coordinate is inside the matrix. */
+			if ( !( (x+i < 0) || (y+j < 0) || (x+i >= game->this.rows) || (y+j >= game->this.cols) ) )
+				/* Make sure to not compare with the middle cell. */
+				if ( !( (i==0) && (j==0) ) )
 					if ( game->this.generation[x+i][y+j] == 1 )
 						aliveCellCount++;
 
