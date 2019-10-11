@@ -14,6 +14,7 @@ typedef struct Game {
 	generation_t next;
 	int generationNumber;
 	int totalGenerations;
+	float cycleTime;
 } game_t;
 
 #define ALIVE 1
@@ -64,6 +65,9 @@ void startGame (game_t *game, char **argv)
 
 	printf ("How many generations do you want to simulate?\n");
 	scanf ("%d", &game->totalGenerations);	
+
+	printf ("How many seconds do you want each generation to last?\n");
+	scanf ("%f", &game->cycleTime);
 }
 
 void defineSizes (game_t *game, char **argv)
@@ -171,7 +175,7 @@ void printGeneration (game_t *game)
 		printf ("\n");
 	}
 
-	sleep (2);
+	sleep (game->cycleTime);
 
 }
 
