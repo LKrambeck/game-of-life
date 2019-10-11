@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 typedef struct Generation {
 	int **generation;
@@ -17,6 +18,7 @@ typedef struct Game {
 
 #define ALIVE 1
 #define DEAD 0
+#define clear() printf("\033[H\033[J")
 
 void startGame            (game_t *game, char **argv);
 void defineSizes          (game_t *game, char **argv);
@@ -148,13 +150,19 @@ void playGame (game_t *game)
 
 		printGeneration (game);
 	}
+
+	sleep (5);
+
+	clear();
 }
 
 void printGeneration (game_t *game)
 {
 	int i, j;
 
-	printf ("\n"); /*clrs*/
+	clear();
+
+	printf ("Generation: %d\n\n", game->generationNumber);
 
 	for ( i=0; i < game->this.rows; i++ )
 	{
@@ -162,6 +170,9 @@ void printGeneration (game_t *game)
 			printf ("%d ", game->this.generation[i][j]);
 		printf ("\n");
 	}
+
+	sleep (2);
+
 }
 
 void nextCellStatus (game_t *game, int x, int y)
@@ -181,7 +192,7 @@ void nextCellStatus (game_t *game, int x, int y)
 	}
 }
 
-/* ------------- Here is the jump of the cat --------------*/
+/* ------------- Here is the jump of the cat ---------------- */
 int checkNeighbors (game_t *game, int x, int y)
 {
 	int i, j, aliveCellCount = 0;
