@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
 
 typedef struct Generation {
@@ -14,7 +13,7 @@ typedef struct Game {
 	generation_t next;
 	int generationNumber;
 	int totalGenerations;
-	float cycleTime;
+	int cycleTime;
 } game_t;
 
 #define ALIVE 1
@@ -66,8 +65,8 @@ void startGame (game_t *game, char **argv)
 	printf ("How many generations do you want to simulate?\n");
 	scanf ("%d", &game->totalGenerations);	
 
-	printf ("How many seconds do you want each generation to last?\n");
-	scanf ("%f", &game->cycleTime);
+	printf ("How many microseconds do you want each generation to last?\n");
+	scanf ("%d", &game->cycleTime);
 }
 
 void defineSizes (game_t *game, char **argv)
@@ -155,7 +154,7 @@ void playGame (game_t *game)
 		printGeneration (game);
 	}
 
-	sleep (5);
+	sleep (3);
 
 	clear();
 }
@@ -175,7 +174,7 @@ void printGeneration (game_t *game)
 		printf ("\n");
 	}
 
-	sleep (game->cycleTime);
+	usleep (game->cycleTime);
 
 }
 
