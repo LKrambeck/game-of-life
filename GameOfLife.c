@@ -206,7 +206,7 @@ int checkNeighbors (game_t *game, int x, int y)
 			if ( !( (x+i < 0) || (y+j < 0) || (x+i >= game->this.rows) || (y+j >= game->this.cols) ) )
 				/* Make sure to not compare with the middle cell. */
 				if ( !( (i==0) && (j==0) ) )
-					if ( game->this.generation[x+i][y+j] == 1 )
+					if ( game->this.generation[x+i][y+j] == ALIVE )
 						aliveCellCount++;
 
 	return aliveCellCount;
