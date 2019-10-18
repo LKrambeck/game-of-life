@@ -3,6 +3,10 @@
 #include <unistd.h>
 #include <string.h>
 
+#define ALIVE 1
+#define DEAD 0
+#define clear() printf("\033[H\033[J")
+
 typedef struct Generation {
 	int **generation;
 	int rows;
@@ -17,10 +21,6 @@ typedef struct Game {
 	int cycleTime;
 } game_t;
 
-#define ALIVE 1
-#define DEAD 0
-#define clear() printf("\033[H\033[J")
-
 void startGame            (game_t *game, char **argv);
 void defineSizes          (game_t *game, char **argv);
 void memoryAlloc          (game_t *game);
@@ -29,13 +29,14 @@ void addCell              (game_t *game, int* i);
 void removeCell           (game_t *game, int* i);
 int  testSize             (game_t *game, int x, int y);
 void playGame             (game_t *game);
-void printGeneration      (game_t *game);
+void createNextGeneration (game_t *game);
 void nextCellStatus       (game_t *game, int x, int y);
 int  checkNeighbors       (game_t *game, int x, int y);
 void createLife           (game_t *game, int x, int y);
 void keepStatus           (game_t *game, int x, int y);
 void killCell             (game_t *game, int x, int y);
 void incrementGeneration  (game_t *game);
+void printGeneration      (game_t *game);
 
 int main (int argc, char **argv)
 {
@@ -206,15 +207,12 @@ int testSize (game_t *game, int x, int y)
 
 void playGame (game_t *game)
 {
-	int i, j;
-
 	printGeneration (game);
 
 	while (game->generationNumber < game->totalGenerations)
 	{
-		for ( i=0; i < game->this.rows; i++ )
-			for ( j=0; j < game->this.cols; j++ )
-				nextCellStatus (game, i, j);					
+
+		createNextGeneration (game);
 
 		incrementGeneration (game);
 
@@ -226,6 +224,79 @@ void playGame (game_t *game)
 	sleep (3);
 
 	clear();
+}
+
+void createNextGeneration (game_t *game)
+{
+	int i, j;
+
+	for ( i=0; i < game->this.rows; i++ )
+		for ( j=0; j < game->this.cols; j++ )
+			nextCellStatus (game, i, j);					
+}
+
+/* Updates the status of a Cell in the next generation. */
+void nextCellStatus (game_t *game, int x, int y)
+{
+	switch ( checkNeighbors (game, x, y) )
+	{
+		case 3:
+			createLife (game, x, y);
+			break;
+
+		case 2:
+			keepStatus (game, x, y);
+			break;
+
+		default:
+			killCell (game, x, y);
+	}
+}
+
+/* ------------- Here is the jump of the cat ---------------- */
+int checkNeighbors (game_t *game, int x, int y)
+{
+	int i, j, aliveCellCount = 0;
+
+	/* Two fors that runs through all the neighbors of a cell. */
+	for ( i=-1; i <= 1; i++ )
+		for ( j=-1; j <= 1; j++ )
+			/* Checks if the coordinate is inside the matrix. */
+			if ( !( (x+i < 0) || (y+j < 0) || (x+i >= game->this.rows) || (y+j >= game->this.cols) ) )
+				/* Make sure to not compare with the middle cell. */
+				if ( !( (i==0) && (j==0) ) )
+					/* Increment the counter if the cell is alive */
+					if ( game->this.generation[x+i][y+j] == ALIVE )
+						aliveCellCount++;
+
+	return aliveCellCount;
+}
+
+void createLife (game_t *game, int x, int y)
+{
+	game->next.generation[x][y] = ALIVE;
+}
+
+void keepStatus (game_t *game, int x, int y)
+{
+	game->next.generation[x][y] = game->this.generation[x][y];
+}
+
+void killCell (game_t *game, int x, int y)
+{
+	game->next.generation[x][y] = DEAD;
+}
+
+/* Copy the board of the next generation to this generation and increment generationNumber */
+void incrementGeneration (game_t *game)
+{
+	int i, j;
+
+	for ( i=0; i < game->next.rows; i++ )
+			for ( j=0; j < game->next.cols; j++ )
+				game->this.generation[i][j] = game->next.generation[i][j];
+
+	game->generationNumber++;
 }
 
 void printGeneration (game_t *game)
@@ -277,69 +348,4 @@ void printGeneration (game_t *game)
 		else
 			printf ("  ");
 	printf ("\n");
-
 }
-
-/* Checks if the status of a Cell in the next generation. */
-void nextCellStatus (game_t *game, int x, int y)
-{
-	switch ( checkNeighbors (game, x, y) )
-	{
-		case 3:
-			createLife (game, x, y);
-			break;
-
-		case 2:
-			keepStatus (game, x, y);
-			break;
-
-		default:
-			killCell (game, x, y);
-	}
-}
-
-/* ------------- Here is the jump of the cat ---------------- */
-int checkNeighbors (game_t *game, int x, int y)
-{
-	int i, j, aliveCellCount = 0;
-
-	/* Two fors that runs all the neighbors of a cell. */
-	for ( i=-1; i <= 1; i++ )
-		for ( j=-1; j <= 1; j++ )
-			/* Checks if the coordinate is inside the matrix. */
-			if ( !( (x+i < 0) || (y+j < 0) || (x+i >= game->this.rows) || (y+j >= game->this.cols) ) )
-				/* Make sure to not compare with the middle cell. */
-				if ( !( (i==0) && (j==0) ) )
-					if ( game->this.generation[x+i][y+j] == ALIVE )
-						aliveCellCount++;
-
-	return aliveCellCount;
-}
-
-void createLife (game_t *game, int x, int y)
-{
-	game->next.generation[x][y] = ALIVE;
-}
-
-void keepStatus (game_t *game, int x, int y)
-{
-	game->next.generation[x][y] = game->this.generation[x][y];
-}
-
-void killCell (game_t *game, int x, int y)
-{
-	game->next.generation[x][y] = DEAD;
-}
-
-/* Copy the board of the next generation to this generation and increment generationNumber */
-void incrementGeneration (game_t *game)
-{
-	int i, j;
-
-	for ( i=0; i < game->next.rows; i++ )
-			for ( j=0; j < game->next.cols; j++ )
-				game->this.generation[i][j] = game->next.generation[i][j];
-
-	game->generationNumber++;
-}
-
