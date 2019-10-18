@@ -54,6 +54,7 @@ int main (int argc, char **argv)
 	return 1;
 }
 
+/* Allocate the data structure and setup the game */
 void startGame (game_t *game, char **argv)
 {
 	defineSizes (game, argv);
@@ -109,11 +110,15 @@ void firstGeneration (game_t *game)
 	printf ("How many alive cells do you want in the first generation?\n");
 	scanf ("%d", &alive);
 
-	printf ("\n");
 	printf ("Put the coordinates of the cells you want alive on the first generation:\n");
+
 
 	while ( i < alive )
 	{
+		clear ();
+		printGeneration (game);
+		printf ("\n");
+	
 		printf ("Cell [%d]: ", i);
 		scanf ("%d %d", &x, &y);
 
@@ -128,6 +133,7 @@ void firstGeneration (game_t *game)
 	}
 }
 
+/* Checks if a Cell is inside the allocated data structure. */
 int testSize (game_t *game, int x, int y)
 {
 	if ( (x < 0) || (y < 0) || (x >= game->this.rows) || (y >= game->this.cols) )
@@ -170,14 +176,22 @@ void printGeneration (game_t *game)
 	for ( i=0; i < game->this.rows; i++ )
 	{
 		for ( j=0; j < game->this.cols; j++ )
-			printf ("%d ", game->this.generation[i][j]);
+		{
+			if (game->this.generation[i][j] == ALIVE)
+				printf ("+");
+			else if (game->this.generation[i][j] == DEAD)
+				printf (" ");
+			else
+				printf ("!");
+		}
+
 		printf ("\n");
 	}
 
 	usleep (game->cycleTime);
-
 }
 
+/* Checks if the status of a Cell in the next generation. */
 void nextCellStatus (game_t *game, int x, int y)
 {
 	switch ( checkNeighbors (game, x, y) )
@@ -200,6 +214,7 @@ int checkNeighbors (game_t *game, int x, int y)
 {
 	int i, j, aliveCellCount = 0;
 
+	/* Two fors that runs all the neighbors of a cell. */
 	for ( i=-1; i <= 1; i++ )
 		for ( j=-1; j <= 1; j++ )
 			/* Checks if the coordinate is inside the matrix. */
@@ -227,6 +242,7 @@ void killCell (game_t *game, int x, int y)
 	game->next.generation[x][y] = DEAD;
 }
 
+/* Copy the board of the next generation to this generation and increment generationNumber */
 void incrementGeneration (game_t *game)
 {
 	int i, j;
