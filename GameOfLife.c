@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 
 typedef struct Generation {
 	int **generation;
@@ -24,6 +25,8 @@ void startGame            (game_t *game, char **argv);
 void defineSizes          (game_t *game, char **argv);
 void memoryAlloc          (game_t *game);
 void firstGeneration      (game_t *game);
+void addCell              (game_t *game, int x, int y);
+void removeCell           (game_t *game, int x, int y);
 int  testSize             (game_t *game, int x, int y);
 void playGame             (game_t *game);
 void printGeneration      (game_t *game);
@@ -66,8 +69,15 @@ void startGame (game_t *game, char **argv)
 	printf ("How many generations do you want to simulate?\n");
 	scanf ("%d", &game->totalGenerations);	
 
-	printf ("How many microseconds do you want each generation to last?\n");
-	scanf ("%d", &game->cycleTime);
+	float time;
+
+	printf ("How many seconds do you want each generation to last?\n");
+	scanf ("%f", &time);
+	time *= 1000000;
+	game->cycleTime = time;
+	
+	printf ("\nStarting board...");
+	sleep (2);
 }
 
 void defineSizes (game_t *game, char **argv)
@@ -104,33 +114,69 @@ void memoryAlloc (game_t *game)
 
 void firstGeneration (game_t *game)
 {
-	int alive, x, y, i=0;
+	int x, y, i=1;
+	char input[] = {'i'};
 
-	printf ("\n");
-	printf ("How many alive cells do you want in the first generation?\n");
-	scanf ("%d", &alive);
-
-	printf ("Put the coordinates of the cells you want alive on the first generation:\n");
-
-
-	while ( i < alive )
+	while (input[0] != 's' || strlen(input) != 1)
 	{
 		clear ();
 		printGeneration (game);
-		printf ("\n");
-	
-		printf ("Cell [%d]: ", i);
-		scanf ("%d %d", &x, &y);
+		
+		printf ("\nDigit [a] to add a live cell, [k] to kill a live cell and [s] to start the game.\n");
+		scanf ("%c", input);
 
-		if ( testSize (game, x, y) )
+		if (input[0] == 'a' && strlen(input) == 1)
 		{
-			game->this.generation[x][y] = ALIVE;
-			i++;
+			printf ("\nCell [%d] coordinates: ", i);
+			scanf ("%d %d", &x, &y);
+
+			if ( testSize (game, x-1, y-1) )
+			{
+				game->this.generation[x-1][y-1] = ALIVE;
+				i++;
+			}
+
+			else
+			{
+				printf ("\nInvalid coordinates.\n");
+				sleep (2);
+			}
 		}
 
-		else
-			printf ("Invalid coordinates.\n");
+		else if (input[0] == 'k' && strlen(input) == 1)
+		{
+			printf ("\nCell coordinates: ");
+			scanf ("%d %d", &x, &y);
+
+			if ( testSize (game, x-1, y-1) && game->this.generation[x-1][y-1] == ALIVE)
+			{
+				game->this.generation[x-1][y-1] = DEAD;
+				i--;
+			}
+
+			else
+			{
+				printf ("\nInvalid coordinates.\n");
+				sleep (2);
+			}
+		}
+
+		else if (input[0] != 's' && strlen(input) != 1)
+		{
+			printf ("\nInvalid input, try again.");
+			sleep (2);
+		}
 	}
+}
+
+void addCell (game_t *game, int x, int y)
+{
+
+}
+
+void removeCell (game_t *game, int x, int y)
+{
+
 }
 
 /* Checks if a Cell is inside the allocated data structure. */
@@ -173,20 +219,46 @@ void printGeneration (game_t *game)
 
 	printf ("Generation: %d\n\n", game->generationNumber);
 
-	for ( i=0; i < game->this.rows; i++ )
+	printf ("  ");
+	for ( j=1; j <= game->this.cols; j++)
+		if (j % 5 == 0 || j == 1)
+			printf ("%2d", j);
+		else
+			printf ("  ");
+	printf ("\n");
+
+	for ( i=1; i <= game->this.rows; i++ )
 	{
-		for ( j=0; j < game->this.cols; j++ )
+		if (i % 5 == 0 || i == 1)
+			printf ("%2d", i);
+		else
+			printf ("  ");
+
+		for ( j=1; j <= game->this.cols; j++ )
 		{
-			if (game->this.generation[i][j] == ALIVE)
-				printf ("+");
-			else if (game->this.generation[i][j] == DEAD)
-				printf (" ");
+			
+			if (game->this.generation[i-1][j-1] == ALIVE)
+				printf (" +");
+			else if (game->this.generation[i-1][j-1] == DEAD)
+				printf ("  ");
 			else
-				printf ("!");
+				printf (" !");
 		}
+
+		if (i % 5 == 0 || i == 1)
+			printf ("%2d", i);
+		else
+			printf ("  ");
 
 		printf ("\n");
 	}
+
+	printf ("  ");
+	for ( j=1; j <= game->this.cols; j++)
+		if (j % 5 == 0 || j == 1)
+			printf ("%2d", j);
+		else
+			printf ("  ");
 
 	usleep (game->cycleTime);
 }
