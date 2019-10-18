@@ -113,20 +113,20 @@ void memoryAlloc (game_t *game)
 void firstGeneration (game_t *game)
 {
 	int i=1;
-	char input = 'i';
-	/* arrumar esses diabo de char */
-	while ( input != 's' )
+	int input = 0;
+
+	while ( input != 3 )
 	{
 		clear ();
 		printGeneration (game);
 		
-		printf ("\nDigit [a] to add a live cell, [k] to kill a live cell and [s] to start the game.\n");
-		scanf ("  %c", &input);
+		printf ("\nDigit [1] to add a live cell, [2] to kill a live cell and [3] to start the game.\n");
+		scanf ("%d", &input);
 
-		if (input == 'a')
+		if (input == 1)
 			addCell (game, &i);
 
-		else if (input == 'k')
+		if (input == 2)
 			removeCell (game, &i);
 	}
 }
@@ -301,6 +301,7 @@ void printGeneration (game_t *game)
 
 	printf ("Generation: %d\n\n", game->generationNumber);
 
+	/* Top grid */
 	printf ("  ");
 	for ( j=1; j <= game->this.cols; j++)
 		if (j % 5 == 0 || j == 1)
@@ -311,6 +312,7 @@ void printGeneration (game_t *game)
 
 	for ( i=1; i <= game->this.rows; i++ )
 	{
+		/* Left grid */
 		if (i % 5 == 0 || i == 1)
 			printf ("%2d", i);
 		else
@@ -327,6 +329,7 @@ void printGeneration (game_t *game)
 				printf (" !");
 		}
 
+		/* Right grid */
 		if (i % 5 == 0 || i == 1)
 			printf ("%2d", i);
 		else
@@ -335,6 +338,7 @@ void printGeneration (game_t *game)
 		printf ("\n");
 	}
 
+	/* Bottom grid */
 	printf ("  ");
 	for ( j=1; j <= game->this.cols; j++)
 		if (j % 5 == 0 || j == 1)
