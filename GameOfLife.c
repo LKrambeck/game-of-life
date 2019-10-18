@@ -287,7 +287,9 @@ void incrementGeneration (game_t *game)
 	int i, j;
 
 	for ( i=0; i < game->next.rows; i++ )
-			for ( j=0; j < game->next.cols; j++ )
+		for ( j=0; j < game->next.cols; j++ )
+			/* Change the data only if it changed */
+			if (game->this.generation[i][j] != game->next.generation[i][j])
 				game->this.generation[i][j] = game->next.generation[i][j];
 
 	game->generationNumber++;
