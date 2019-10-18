@@ -223,8 +223,6 @@ void playGame (game_t *game)
 		printGeneration (game);
 	}
 
-	printf ("That's all folks!");
-
 	sleep (3);
 
 	clear();
