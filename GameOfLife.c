@@ -115,7 +115,7 @@ void firstGeneration (game_t *game)
 	int i=1;
 	char input[] = {'i'};
 
-	while (input[0] != 's' || strlen(input) != 1)
+	while ( !(input[0] == 's' && strlen(input) != 1) )
 	{
 		clear ();
 		printGeneration (game);
@@ -129,7 +129,7 @@ void firstGeneration (game_t *game)
 		else if (input[0] == 'k' && strlen(input) == 1)
 			removeCell (game, &i);
 
-		else if (input[0] != 's' || strlen(input) != 1)
+		else if (input[0] != 's' && strlen(input) != 1)
 		{
 			printf ("\nInvalid input, try again.");
 			sleep (2);
@@ -170,7 +170,7 @@ void removeCell (game_t *game, int* i)
 {
 	int x, y;
 
-	printf ("\nCell [%d] coordinates: ", *i);
+	printf ("\nCell coordinates: ");
 	scanf ("%d %d", &x, &y);
 
 	if ( testSize (game, x-1, y-1) )
