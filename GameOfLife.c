@@ -108,7 +108,7 @@ void memoryAlloc (game_t *game)
 		game->next.generation[i] = (int *) calloc ( game->next.cols, sizeof (int) );
 }	
 
-
+/* Setup the first generation with the user inputs */
 void firstGeneration (game_t *game)
 {
 	int i=1;
@@ -128,7 +128,7 @@ void firstGeneration (game_t *game)
 		else if (input[0] == 'k' && strlen(input) == 1)
 			removeCell (game, &i);
 
-		else if (input[0] != 's' && strlen(input) != 1)
+		else if (input[0] != 's' || strlen(input) != 1)
 		{
 			printf ("\nInvalid input, try again.");
 			sleep (2);
