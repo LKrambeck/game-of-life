@@ -25,8 +25,8 @@ void startGame            (game_t *game, char **argv);
 void defineSizes          (game_t *game, char **argv);
 void memoryAlloc          (game_t *game);
 void firstGeneration      (game_t *game);
-void addCell              (game_t *game, int x, int y);
-void removeCell           (game_t *game, int x, int y);
+void addCell              (game_t *game, int* i);
+void removeCell           (game_t *game, int* i);
 int  testSize             (game_t *game, int x, int y);
 void playGame             (game_t *game);
 void printGeneration      (game_t *game);
@@ -75,9 +75,6 @@ void startGame (game_t *game, char **argv)
 	scanf ("%f", &time);
 	time *= 1000000;
 	game->cycleTime = time;
-	
-	printf ("\nStarting board...");
-	sleep (2);
 }
 
 void defineSizes (game_t *game, char **argv)
@@ -114,7 +111,7 @@ void memoryAlloc (game_t *game)
 
 void firstGeneration (game_t *game)
 {
-	int x, y, i=1;
+	int i=1;
 	char input[] = {'i'};
 
 	while (input[0] != 's' || strlen(input) != 1)
@@ -126,40 +123,10 @@ void firstGeneration (game_t *game)
 		scanf ("%c", input);
 
 		if (input[0] == 'a' && strlen(input) == 1)
-		{
-			printf ("\nCell [%d] coordinates: ", i);
-			scanf ("%d %d", &x, &y);
-
-			if ( testSize (game, x-1, y-1) )
-			{
-				game->this.generation[x-1][y-1] = ALIVE;
-				i++;
-			}
-
-			else
-			{
-				printf ("\nInvalid coordinates.\n");
-				sleep (2);
-			}
-		}
+			addCell (game, &i);
 
 		else if (input[0] == 'k' && strlen(input) == 1)
-		{
-			printf ("\nCell coordinates: ");
-			scanf ("%d %d", &x, &y);
-
-			if ( testSize (game, x-1, y-1) && game->this.generation[x-1][y-1] == ALIVE)
-			{
-				game->this.generation[x-1][y-1] = DEAD;
-				i--;
-			}
-
-			else
-			{
-				printf ("\nInvalid coordinates.\n");
-				sleep (2);
-			}
-		}
+			removeCell (game, &i);
 
 		else if (input[0] != 's' && strlen(input) != 1)
 		{
@@ -169,14 +136,62 @@ void firstGeneration (game_t *game)
 	}
 }
 
-void addCell (game_t *game, int x, int y)
+void addCell (game_t *game, int* i)
 {
+	int x, y;
 
+	printf ("\nCell [%d] coordinates: ", *i);
+	scanf ("%d %d", &x, &y);
+
+	if ( testSize (game, x-1, y-1) )
+	{
+		if (game->this.generation[x-1][y-1] == DEAD)
+		{
+			game->this.generation[x-1][y-1] = ALIVE;
+			i++;
+		}
+	
+		else
+		{
+			printf ("\nThis cell is already live.\n");
+			sleep (2);
+		}
+	}
+
+	else
+	{
+		printf ("\nInvalid coordinates.\n");
+		sleep (2);
+	}
 }
 
-void removeCell (game_t *game, int x, int y)
+void removeCell (game_t *game, int* i)
 {
+	int x, y;
 
+	printf ("\nCell [%d] coordinates: ", *i);
+	scanf ("%d %d", &x, &y);
+
+	if ( testSize (game, x-1, y-1) )
+	{
+		if (game->this.generation[x-1][y-1] == ALIVE)
+		{
+			game->this.generation[x-1][y-1] = DEAD;
+			i++;
+		}
+	
+		else
+		{
+			printf ("\nThis cell is already dead.\n");
+			sleep (2);
+		}
+	}
+
+	else
+	{
+		printf ("\nInvalid coordinates.\n");
+		sleep (2);
+	}
 }
 
 /* Checks if a Cell is inside the allocated data structure. */
@@ -259,6 +274,7 @@ void printGeneration (game_t *game)
 			printf ("%2d", j);
 		else
 			printf ("  ");
+	printf ("\n");
 
 	usleep (game->cycleTime);
 }
