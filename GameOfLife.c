@@ -113,27 +113,21 @@ void memoryAlloc (game_t *game)
 void firstGeneration (game_t *game)
 {
 	int i=1;
-	char input[] = {'i'};
-
-	while ( !(input[0] == 's' && strlen(input) != 1) )
+	char input = 'i';
+	/* arrumar esses diabo de char */
+	while ( input != 's' )
 	{
 		clear ();
 		printGeneration (game);
 		
 		printf ("\nDigit [a] to add a live cell, [k] to kill a live cell and [s] to start the game.\n");
-		scanf ("%c", input);
+		scanf ("  %c", &input);
 
-		if (input[0] == 'a' && strlen(input) == 1)
+		if (input == 'a')
 			addCell (game, &i);
 
-		else if (input[0] == 'k' && strlen(input) == 1)
+		else if (input == 'k')
 			removeCell (game, &i);
-
-		else if (input[0] != 's' && strlen(input) != 1)
-		{
-			printf ("\nInvalid input, try again.");
-			sleep (2);
-		}
 	}
 }
 
