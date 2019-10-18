@@ -148,7 +148,7 @@ void addCell (game_t *game, int* i)
 		if (game->this.generation[x-1][y-1] == DEAD)
 		{
 			game->this.generation[x-1][y-1] = ALIVE;
-			i++;
+			(*i)++;
 		}
 	
 		else
@@ -177,7 +177,7 @@ void removeCell (game_t *game, int* i)
 		if (game->this.generation[x-1][y-1] == ALIVE)
 		{
 			game->this.generation[x-1][y-1] = DEAD;
-			i++;
+			(*i)--;
 		}
 	
 		else
@@ -218,8 +218,12 @@ void playGame (game_t *game)
 
 		incrementGeneration (game);
 
+		usleep (game->cycleTime);
+
 		printGeneration (game);
 	}
+
+	printf ("That's all folks!");
 
 	sleep (3);
 
@@ -276,7 +280,6 @@ void printGeneration (game_t *game)
 			printf ("  ");
 	printf ("\n");
 
-	usleep (game->cycleTime);
 }
 
 /* Checks if the status of a Cell in the next generation. */
